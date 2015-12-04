@@ -56,7 +56,7 @@ if (!isset($flag_disable_header) || !$flag_disable_header) {
 <?php } } ?>
 
 <?php if ($_SESSION['cart']->count_contents() != 0) { ?>
-    <li><a href="<?php echo zen_href_link(FILENAME_SHOPPING_CART, '', 'NONSSL'); ?>"><?php echo HEADER_TITLE_CART_CONTENTS; ?></a></li>
+<li><a href="<?php echo zen_href_link(FILENAME_SHOPPING_CART, '', 'NONSSL'); ?>"><?php echo HEADER_TITLE_CART_CONTENTS; ?> (<? echo $_SESSION['cart']->count_contents();?><? echo( ($_SESSION['cart']->count_contents() > 1) ? " items)" : " item)" ); ?></a></li>
     <li><a href="<?php echo zen_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL'); ?>"><?php echo HEADER_TITLE_CHECKOUT; ?></a></li>
 <?php }?>
 </ul>
