@@ -10,7 +10,7 @@ define('ADMIN_SWITCH_SEND_LOGIN_FAILURE_EMAILS', 'Yes'); // Can be set to 'No' i
 
 // PCI-DSS / PA-DSS requirements for lockouts and intervals:
 define('ADMIN_LOGIN_LOCKOUT_TIMER', (30 * 60));
-define('ADMIN_PASSWORD_EXPIRES_INTERVAL', strtotime('- 90 day'));
+define('ADMIN_PASSWORD_EXPIRES_INTERVAL', strtotime('- 90 year'));
 
 //////////
 require ('includes/application_top.php');
@@ -57,7 +57,7 @@ if (isset($_POST['action']) && $_POST['action'] != '')
     } else
     {
       $message = SUCCESS_PASSWORD_UPDATED;
-      list($error, $expired, $message, $redirect) = zen_validate_user_login($admin_name, $adm_new_pwd);
+
       if ($redirect != '') zen_redirect($redirect);
       zen_redirect(zen_href_link(FILENAME_DEFAULT, '', 'SSL'));
     }

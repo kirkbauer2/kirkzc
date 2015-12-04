@@ -32,6 +32,8 @@
 <?php echo zen_draw_form('cart_quantity', zen_href_link(FILENAME_SHOPPING_CART, 'action=update_product', $request_type)); ?>
 <div id="cartInstructionsDisplay" class="content"><?php echo TEXT_INFORMATION; ?></div>
 
+<!-- <h2><span style="color: red"><b>NOTE: Orders placed now will not ship until AFTER GenCon.</b></span></h2> -->
+
 <?php if (!empty($totalsDisplay)) { ?>
   <div class="cartTotalsDisplay important"><?php echo $totalsDisplay; ?></div>
   <br class="clearBoth" />
@@ -113,7 +115,7 @@
            <a href="<?php echo zen_href_link(FILENAME_SHOPPING_CART, 'action=remove_product&product_id=' . $product['id']); ?>"><?php echo zen_image($template->get_template_dir(ICON_IMAGE_TRASH, DIR_WS_TEMPLATE, $current_page_base,'images/icons'). '/' . ICON_IMAGE_TRASH, ICON_TRASH_ALT); ?></a>
 <?php
   }
-  if ($product['checkBoxDelete'] ) {
+  if (false and $product['checkBoxDelete'] ) {
     echo zen_draw_checkbox_field('cart_delete[]', $product['id']);
   }
 ?>
@@ -133,7 +135,7 @@
 <div class="buttonRow back"><?php echo zen_back_link() . zen_image_button(BUTTON_IMAGE_CONTINUE_SHOPPING, BUTTON_CONTINUE_SHOPPING_ALT) . '</a>'; ?></div>
 <?php
 // show update cart button
-  if (SHOW_SHOPPING_CART_UPDATE == 2 or SHOW_SHOPPING_CART_UPDATE == 3) {
+  if (false and (SHOW_SHOPPING_CART_UPDATE == 2 or SHOW_SHOPPING_CART_UPDATE == 3)) {
 ?>
 <div class="buttonRow back"><?php echo zen_image_submit(ICON_IMAGE_UPDATE, ICON_UPDATE_ALT); ?></div>
 <?php

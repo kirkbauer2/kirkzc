@@ -11,8 +11,8 @@
 define('ICON_IMAGE_ERROR', 'error.gif');
 define('ICON_IMAGE_WARNING', 'warning.gif');
 define('ICON_IMAGE_SUCCESS', 'success.gif');
-define('ICON_IMAGE_TRASH', 'small_delete.gif');
-define('ICON_IMAGE_UPDATE', 'button_update_cart.gif');
+define('ICON_IMAGE_TRASH', 'small_delete.png');
+define('ICON_IMAGE_UPDATE', 'button_update_cart.png');
 define('ICON_IMAGE_TINYCART', 'cart.gif');
 
 //alt tags for buttons

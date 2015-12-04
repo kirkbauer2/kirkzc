@@ -1191,7 +1191,8 @@ class shoppingCart extends base {
                                   p.products_price, p.products_weight, p.products_tax_class_id,
                                   p.products_quantity_order_min, p.products_quantity_order_units, p.products_quantity_order_max,
                                   p.product_is_free, p.products_priced_by_attribute,
-                                  p.products_discount_type, p.products_discount_type_from, p.products_virtual, p.product_is_always_free_shipping
+                                  p.products_discount_type, p.products_discount_type_from, p.products_virtual, p.product_is_always_free_shipping,
+                                  if(p.total_cost > 0,p.total_cost/p.total_purchased,p.default_cost) as products_cost
                            from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd
                            where p.products_id = '" . (int)$products_id . "'
                            and pd.products_id = p.products_id
@@ -1347,6 +1348,7 @@ class shoppingCart extends base {
                                   'category' => $products->fields['master_categories_id'],
                                   'name' => $products->fields['products_name'],
                                   'model' => $products->fields['products_model'],
+                                  'products_cost' => $products->fields['products_cost'],
                                   'image' => $products->fields['products_image'],
                                   'price' => ($products->fields['product_is_free'] =='1' ? 0 : $products_price),
         //                                    'quantity' => $this->contents[$products_id]['qty'],

@@ -48,6 +48,21 @@
 <?php require(DIR_WS_INCLUDES . 'header.php'); ?>
 <!-- header_eof //-->
  <?php
+ 
+  $equipped_value = $db->Execute("select sum(if(total_cost > 0,total_cost/total_purchased,default_cost)*(equipped_quantity)) as cost from " . TABLE_PRODUCTS);
+  $equipped_value = round( $equipped_value->fields['cost'], 2 );
+
+  $secondary_equipped_value = $db->Execute("select sum(if(total_cost > 0,total_cost/total_purchased,default_cost)*(equipped_secondary)) as cost from " . TABLE_PRODUCTS);
+  $secondary_equipped_value = round( $secondary_equipped_value->fields['cost'], 2 );
+
+  $backup_equipped_value = $db->Execute("select sum(if(total_cost > 0,total_cost/total_purchased,default_cost)*(equipped_backup)) as cost from " . TABLE_PRODUCTS);
+  $backup_equipped_value = round( $backup_equipped_value->fields['cost'], 2 );
+
+  $inventory_value = $db->Execute("select sum(if(total_cost > 0,total_cost/total_purchased,default_cost)*(products_quantity+reserved_quantity)) as cost from " . TABLE_PRODUCTS . " where is_virtual = false" );
+  $inventory_value = round( $inventory_value->fields['cost'], 2 );
+
+  $sales_value = $db->Execute("select sum(products_price*(products_quantity+reserved_quantity)) as price from " . TABLE_PRODUCTS . " where is_virtual = false" );
+  $sales_value = round( $sales_value->fields['price'], 2 );
 
   $customers = $db->Execute("select count(*) as count from " . TABLE_CUSTOMERS);
 
@@ -79,6 +94,11 @@
 <div class="reportBox">
 <div class="header"><?php echo BOX_TITLE_STATISTICS; ?> </div>
 <?php
+  echo '<div class="row"><span class="left">Primary Equipped Value:</span><span class="rigth"> ' . $equipped_value . '</span></div>';
+  echo '<div class="row"><span class="left">Secondary Equipped Value:</span><span class="rigth"> ' . $secondary_equipped_value . '</span></div>';
+  echo '<div class="row"><span class="left">Backup Equipped Value:</span><span class="rigth"> ' . $backup_equipped_value . '</span></div>';
+  echo '<div class="row"><span class="left">Total Inventory Value:</span><span class="rigth"> ' . $inventory_value . '</span></div>';
+  echo '<div class="row"><span class="left">Total Inventory Sales Price:</span><span class="rigth"> ' . $sales_value . '</span></div>';
   echo '<div class="row"><span class="left">' . BOX_ENTRY_COUNTER_DATE . '</span><span class="rigth"> ' . $counter_startdate_formatted . '</span></div>';
   echo '<div class="row"><span class="left">' . BOX_ENTRY_COUNTER . '</span><span class="rigth"> ' . $counter->fields['counter'] . '</span></div>';
   echo '<div class="row"><span class="left">' . BOX_ENTRY_CUSTOMERS . '</span><span class="rigth"> ' . $customers->fields['count'] . '</span></div>';

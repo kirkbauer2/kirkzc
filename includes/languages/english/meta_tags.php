@@ -8,13 +8,13 @@
  */
 
 // page title
-define('TITLE', 'Zen Cart!');
+define('TITLE', 'TD Tavern');
 
 // Site Tagline
-define('SITE_TAGLINE', 'The Art of E-commerce');
+define('SITE_TAGLINE', 'TD Tavern (True Dungeon Tokens)');
 
 // Custom Keywords
-define('CUSTOM_KEYWORDS', 'ecommerce, open source, shop, online shopping, store');
+define('CUSTOM_KEYWORDS', 'ecommerce, open source, shop, online shopping, store, True Dungeon, True Dungeon, Tokens');
 
 // Home Page Only:
   define('HOME_PAGE_META_DESCRIPTION', '');

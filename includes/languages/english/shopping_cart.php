@@ -10,7 +10,7 @@
 define('NAVBAR_TITLE', 'The Shopping Cart');
 define('HEADING_TITLE', 'Your Shopping Cart Contents');
 define('HEADING_TITLE_EMPTY', 'Your Shopping Cart');
-define('TEXT_INFORMATION', 'You may want to add some instructions for using the shopping cart here. (defined in includes/languages/english/shopping_cart.php)');
+define('TEXT_INFORMATION', 'Domestic US shipping is a flat $3.50 or free for orders over $90. International shipping is a fixed cost for any order.');
 define('TABLE_HEADING_REMOVE', 'Remove');
 define('TABLE_HEADING_QUANTITY', 'Qty.');
 define('TABLE_HEADING_MODEL', 'Model');

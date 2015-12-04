@@ -72,7 +72,7 @@ if (!isset($_SESSION['display_categories_dropdown'])) {
                 <td class="dataTableHeadingContent" align="left"><?php echo TABLE_HEADING_MODEL; ?></td>
                 <td class="dataTableHeadingContent" align="right"><?php echo TABLE_HEADING_PRICE; ?></td>
                 <td class="dataTableHeadingContent" align="right">&nbsp;</td>
-                <td class="dataTableHeadingContent" align="right"><?php echo TABLE_HEADING_QUANTITY; ?>&nbsp;&nbsp;&nbsp;</td>
+                <td class="dataTableHeadingContent" align="center"><?php echo TABLE_HEADING_QUANTITY; ?>&nbsp;&nbsp;&nbsp;</td>
                 <td class="dataTableHeadingContent" width="50" align="center"><?php echo TABLE_HEADING_STATUS; ?></td>
                 <td class="dataTableHeadingContent" align="right"><?php echo TABLE_HEADING_CATEGORIES_SORT_ORDER; ?></td>
                 <td class="dataTableHeadingContent" align="right"><?php echo TABLE_HEADING_ACTION; ?>&nbsp;</td>
@@ -246,7 +246,7 @@ if (!isset($_SESSION['display_categories_dropdown'])) {
                                        p.products_image, p.products_price, p.products_date_added,
                                        p.products_last_modified, p.products_date_available,
                                        p.products_status, p2c.categories_id,
-                                       p.products_model,
+                                       p.products_model,p.reserved_quantity,
                                        p.products_quantity_order_min, p.products_quantity_order_units, p.products_priced_by_attribute,
                                        p.product_is_free, p.product_is_call, p.products_quantity_mixed, p.product_is_always_free_shipping,
                                        p.products_quantity_order_max, p.products_sort_order,
@@ -268,7 +268,7 @@ if (!isset($_SESSION['display_categories_dropdown'])) {
       $products_query_raw = ("select p.products_type, p.products_id, pd.products_name, p.products_quantity,
                                        p.products_image, p.products_price, p.products_date_added,
                                        p.products_last_modified, p.products_date_available,
-                                       p.products_status, p.products_model,
+                                       p.products_status, p.products_model,p.reserved_quantity,
                                        p.products_quantity_order_min, p.products_quantity_order_units, p.products_priced_by_attribute,
                                        p.product_is_free, p.product_is_call, p.products_quantity_mixed, p.product_is_always_free_shipping,
                                        p.products_quantity_order_max, p.products_sort_order
@@ -335,7 +335,11 @@ if (($_GET['page'] == '1' or $_GET['page'] == '') and isset($_GET['pID']) && $_G
                 <td class="dataTableContent"><?php echo '<a href="' . zen_href_link($type_handler, 'cPath=' . $cPath . '&pID=' . $products->fields['products_id'] . '&action=new_product_preview&read=only' . '&product_type=' . $products->fields['products_type'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '')) . '">' . zen_image(DIR_WS_ICONS . 'preview.gif', ICON_PREVIEW) . '</a>&nbsp;' . $products->fields['products_name']; ?></td>
                 <td class="dataTableContent"><?php echo $products->fields['products_model']; ?></td>
                 <td colspan="2" class="dataTableContent" align="right"><?php echo zen_get_products_display_price($products->fields['products_id']); ?></td>
-                <td class="dataTableContent" align="right"><?php echo $products->fields['products_quantity']; ?></td>
+                <?php if( $products->fields['reserved_quantity'] > 0 ) : ?>
+                <td class="dataTableContent" align="center"><?php echo $products->fields['products_quantity']; ?> (+<?= $products->fields['reserved_quantity'] ?>)</td>
+                <?php else: ?>
+                <td class="dataTableContent" align="center"><?php echo $products->fields['products_quantity']; ?></td>
+                <?php endif; ?>
                 <td class="dataTableContent" width="50" align="left">
 <?php
       if ($products->fields['products_status'] == '1') {

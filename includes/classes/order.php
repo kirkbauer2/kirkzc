@@ -450,6 +450,7 @@ class order extends base {
                                       'tax_description' => zen_get_tax_description($products[$i]['tax_class_id'], $taxCountryId, $taxZoneId),
                                       'price' => $products[$i]['price'],
                                       'final_price' => $products[$i]['price'] + $_SESSION['cart']->attributes_price($products[$i]['id']),
+                                      'products_cost' => $products[$i]['products_cost'],
                                       'onetime_charges' => $_SESSION['cart']->attributes_price_onetime_charges($products[$i]['id'], $products[$i]['quantity']),
                                       'weight' => $products[$i]['weight'],
                                       'products_priced_by_attribute' => $products[$i]['products_priced_by_attribute'],
@@ -748,6 +749,61 @@ class order extends base {
           //            $this->products[$i]['stock_value'] = $stock_values->fields['products_quantity'];
 
           $db->Execute("update " . TABLE_PRODUCTS . " set products_quantity = '" . $stock_left . "' where products_id = '" . zen_get_prid($this->products[$i]['id']) . "'");
+
+          // KIRK BEGIN REDUCE SUB QTY
+          
+          $sub_products = array();
+
+          $sub_result = $db->Execute("select p.products_id, p.products_quantity, p.products_model,  
+                                          p.products_price, p.reserved_quantity, quantity 
+                                  from " . TABLE_PRODUCTS . " p join products_subproducts on sub_id = p.products_id 
+                                  where master_id = '" . zen_get_prid($this->products[$i]['id']) . "'" );
+
+           while (!$sub_result->EOF) {
+              $sub_products[] = array( 
+                'products_model' => $sub_result->fields['products_model'] ,
+                'products_id' => $sub_result->fields['products_id'],
+                'products_price' => $sub_result->fields['products_price'],
+                'sub_quantity' => $sub_result->fields['quantity'],
+                'products_quantity' => $sub_result->fields['products_quantity'],
+                'reserved_quantity' => $sub_result->fields['reserved_quantity'],
+              );
+              $sub_result->MoveNext();
+           }
+
+           if( count( $sub_products ) > 0 )
+           {
+               foreach( $sub_products as $sub )
+               {
+                   if( $sub['reserved_quantity'] < $sub['sub_quantity'] )
+                   {
+                       $remainder = $sub['sub_quantity'] - $sub['reserved_quantity'];
+
+                       $sub['reserved_quantity']  = 0;
+                       $sub['products_quantity'] -= $remainder;
+
+                       if( $sub['products_quantity'] < 0 )
+                       {
+                          $sub['products_quantity'] = 0;
+                       }
+                   }
+                   else
+                   {
+                       $sub['reserved_quantity'] = $sub['reserved_quantity'] - $sub['sub_quantity'];
+                   }
+
+                   $db->Execute("update " . TABLE_PRODUCTS . " set products_quantity = " . $sub['products_quantity'] . ", reserved_quantity = " . $sub['reserved_quantity'] . " where products_id = " . $sub['products_id'] );
+
+                   # Disable this product if a sub-product is out of stock
+                   if( $sub['reserved_quantity'] < $sub['sub_quantity'] )
+                   {
+                       $db->Execute("update " . TABLE_PRODUCTS . " set products_status = 0 where products_id = '" . zen_get_prid($this->products[$i]['id']) . "'");
+                   }
+               }
+           }
+          
+          // KIRK END REDUCE SUB QTY
+
           //        if ( ($stock_left < 1) && (STOCK_ALLOW_CHECKOUT == 'false') ) {
           if ($stock_left <= 0) {
             // only set status to off when not displaying sold out
@@ -779,6 +835,7 @@ class order extends base {
                               'products_name' => $this->products[$i]['name'],
                               'products_price' => $this->products[$i]['price'],
                               'final_price' => $this->products[$i]['final_price'],
+                              'products_cost' => $this->products[$i]['products_cost'],
                               'onetime_charges' => $this->products[$i]['onetime_charges'],
                               'products_tax' => $this->products[$i]['tax'],
                               'products_quantity' => $this->products[$i]['qty'],

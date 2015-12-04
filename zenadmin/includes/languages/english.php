@@ -15,7 +15,7 @@ if (!defined('IS_ADMIN_FLAG'))
 define('HEADER_ALT_TEXT', 'Admin Powered by Zen Cart :: The Art of E-Commerce');
 define('HEADER_LOGO_WIDTH', '200px');
 define('HEADER_LOGO_HEIGHT', '70px');
-define('HEADER_LOGO_IMAGE', 'logo.gif');
+define('HEADER_LOGO_IMAGE', 'logo.png');
 
 // look in your $PATH_LOCALE/locale directory for available locales..
 $locales = array('en_US', 'en_US.utf8', 'en', 'English_United States.1252');

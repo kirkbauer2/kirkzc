@@ -29,6 +29,7 @@ if (!defined('IS_ADMIN_FLAG')) {
                        'products_quantity_order_units' => '',
                        'products_priced_by_attribute' => '',
                        'product_is_free' => '',
+                       'is_virtual' => '',
                        'product_is_call' => '',
                        'products_quantity_mixed' => '',
                        'product_is_always_free_shipping' => DEFAULT_PRODUCT_PRODUCTS_IS_ALWAYS_FREE_SHIPPING,
@@ -38,7 +39,14 @@ if (!defined('IS_ADMIN_FLAG')) {
                        'products_discount_type' => '0',
                        'products_discount_type_from' => '0',
                        'products_price_sorter' => '0',
-                       'master_categories_id' => ''
+                       'master_categories_id' => '',
+                       'default_cost' => '0.00',
+                       'equipped_quantity' => '0',
+                       'equipped_secondary' => '0',
+                       'reserved_quantity' => '0',
+                       'equipped_backup' => '0',
+                       'total_cost' => '0.00',
+                       'total_purchased' => '0',
                        );
 
     $pInfo = new objectInfo($parameters);
@@ -50,9 +58,9 @@ if (!defined('IS_ADMIN_FLAG')) {
                                       p.products_date_added, p.products_last_modified,
                                       date_format(p.products_date_available, '%Y-%m-%d') as
                                       products_date_available, p.products_status, p.products_tax_class_id,
-                                      p.manufacturers_id,
+                                      p.manufacturers_id, p.equipped_backup, p.reserved_quantity, p.equipped_quantity, p.equipped_secondary, p.default_cost, p.total_cost, p.total_purchased,
                                       p.products_quantity_order_min, p.products_quantity_order_units, p.products_priced_by_attribute,
-                                      p.product_is_free, p.product_is_call, p.products_quantity_mixed,
+                                      p.product_is_free, p.is_virtual, p.product_is_call, p.products_quantity_mixed,
                                       p.product_is_always_free_shipping, p.products_qty_box_status, p.products_quantity_order_max,
                                       p.products_sort_order,
                                       p.products_discount_type, p.products_discount_type_from,
@@ -69,6 +77,73 @@ if (!defined('IS_ADMIN_FLAG')) {
       $products_description = $_POST['products_description'];
       $products_url = $_POST['products_url'];
     }
+
+    $model_components = split( '-', $pInfo->products_model, 3 );
+    $token_colors = array( 'gold', 'plat', 'onyx' );
+    $other_models = '';
+
+    foreach( $token_colors as $color )
+    {
+      if( $color != $model_components[1] ) {
+         $other_models .= "'" . $model_components[0] . "-$color-" . $model_components[2] . "',";
+      }
+    }
+
+
+    $other_models = rtrim( $other_models, ',' );
+
+    $other_products = array();
+
+      $other_result = $db->Execute("select p.products_id, p.products_quantity, p.products_model,  
+                                      p.products_price, p.reserved_quantity 
+                              from " . TABLE_PRODUCTS . " p  
+                              where p.products_model IN ( $other_models )");
+
+       while (!$other_result->EOF) {
+          $other_products[] = array( 
+            'products_model' => $other_result->fields['products_model'] ,
+            'products_id' => $other_result->fields['products_id'],
+            'products_price' => $other_result->fields['products_price'],
+            'products_quantity' => $other_result->fields['products_quantity'] + $other_result->fields['reserved_quantity'],
+          );
+          $other_result->MoveNext();
+       }
+
+    $master_products = array();
+
+      $master_result = $db->Execute("select p.products_id, p.products_quantity, p.products_model,  
+                                      p.products_price, p.reserved_quantity, quantity 
+                              from " . TABLE_PRODUCTS . " p join products_subproducts on master_id = p.products_id 
+                              where sub_id = " . (int)$_GET['pID'] );
+
+       while (!$master_result->EOF) {
+          $master_products[] = array( 
+            'products_model' => $master_result->fields['products_model'] ,
+            'products_id' => $master_result->fields['products_id'],
+            'products_price' => $master_result->fields['products_price'],
+            'sub_quantity' => $master_result->fields['quantity'],
+            'products_quantity' => $master_result->fields['products_quantity'] + $master_result->fields['reserved_quantity'],
+          );
+          $master_result->MoveNext();
+       }
+
+    $sub_products = array();
+
+      $sub_result = $db->Execute("select p.products_id, p.products_quantity, p.products_model,  
+                                      p.products_price, p.reserved_quantity, quantity 
+                              from " . TABLE_PRODUCTS . " p join products_subproducts on sub_id = p.products_id 
+                              where master_id = " . (int)$_GET['pID'] );
+
+       while (!$sub_result->EOF) {
+          $sub_products[] = array( 
+            'products_model' => $sub_result->fields['products_model'] ,
+            'products_id' => $sub_result->fields['products_id'],
+            'products_price' => $sub_result->fields['products_price'],
+            'sub_quantity' => $sub_result->fields['quantity'],
+            'products_quantity' => $sub_result->fields['products_quantity'] + $sub_result->fields['reserved_quantity'],
+          );
+          $sub_result->MoveNext();
+       }
 
     $manufacturers_array = array(array('id' => '', 'text' => TEXT_NONE));
     $manufacturers = $db->Execute("select manufacturers_id, manufacturers_name
@@ -132,6 +207,13 @@ if (!defined('IS_ADMIN_FLAG')) {
       case '0': $is_products_priced_by_attribute = false; $not_products_priced_by_attribute = true; break;
       case '1': $is_products_priced_by_attribute = true; $not_products_priced_by_attribute = false; break;
       default: $is_products_priced_by_attribute = false; $not_products_priced_by_attribute = true;
+    }
+// Product is Virtual
+    if (!isset($pInfo->is_virtual)) $pInfo->is_virtual = '0';
+    switch ($pInfo->is_virtual) {
+      case '0': $in_is_virtual = false; $out_is_virtual = true; break;
+      case '1': $in_is_virtual = true; $out_is_virtual = false; break;
+      default: $in_is_virtual = false; $out_is_virtual = true;
     }
 // Product is Free
     if (!isset($pInfo->product_is_free)) $pInfo->product_is_free = '0';
@@ -232,6 +314,75 @@ echo zen_draw_form('new_product', $type_admin_handler , 'cPath=' . $cPath . (iss
       </tr>
       <tr>
         <td class="main" align="right"><?php echo zen_draw_hidden_field('products_date_added', (zen_not_null($pInfo->products_date_added) ? $pInfo->products_date_added : date('Y-m-d'))) . zen_image_submit('button_preview.gif', IMAGE_PREVIEW) . '&nbsp;&nbsp;<a href="' . zen_href_link(FILENAME_CATEGORIES, 'cPath=' . $cPath . (isset($_GET['pID']) ? '&pID=' . $_GET['pID'] : '') . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') . ( (isset($_GET['search']) && !empty($_GET['search'])) ? '&search=' . $_GET['search'] : '') . ( (isset($_POST['search']) && !empty($_POST['search']) && empty($_GET['search'])) ? '&search=' . $_POST['search'] : '')) . '">' . zen_image_button('button_cancel.gif', IMAGE_CANCEL) . '</a>'; ?></td>
+      </tr>
+      <tr>
+        <?php if( count( $other_products ) > 0 ): ?>
+        <td colspan=2>
+          <table border=1>
+           <tr><th colspan=3>Other Colors</th></tr>
+           <tr><th>Token</th><th>Inv Qty</th><th>Price</th></tr>
+            <tr>
+               <td><?= $pInfo->products_model ?></td>
+               <td><?= $pInfo->products_quantity + $pInfo->reserved_quantity ?></td>
+               <td><?= $pInfo->products_price ?></td>
+            </tr>
+           <?php foreach( $other_products as $product ) : ?>
+            <tr>
+               <td><a href="product.php?pID=<?= $product['products_id'] ?>&action=new_product"><?= $product['products_model'] ?></a></td>
+               <td><?= $product['products_quantity'] ?></td>
+               <td><?= $product['products_price'] ?></td>
+            </tr>
+            <?php endforeach ?>
+          </table>
+        </td>
+        <?php endif ?>
+        <?php if( count( $master_products ) > 0 ): ?>
+        <td colspan=2>
+          <table border=1>
+           <tr><th colspan=4>Master Products</th></tr>
+           <tr><th>Token</th><th>Inv Qty</th><th>Price</th><th>Sub Qty</th></tr>
+           <?php foreach( $master_products as $product ) : ?>
+            <tr>
+               <td><a href="product.php?pID=<?= $product['products_id'] ?>&action=new_product"><?= $product['products_model'] ?></a></td>
+               <td><?= $product['products_quantity'] ?></td>
+               <td><?= $product['products_price'] ?></td>
+               <td><?= $product['sub_quantity'] ?></td>
+            </tr>
+            <?php endforeach ?>
+            <tr>
+               <td><?= $pInfo->products_model ?></td>
+               <td><?= $pInfo->products_quantity + $pInfo->reserved_quantity ?></td>
+               <td><?= $pInfo->products_price ?></td>
+               <td>-</td>
+            </tr>
+          </table>
+        </td>
+        <?php endif ?>
+        <?php if( count( $sub_products ) > 0 ): ?>
+        <td colspan=2>
+          <table border=1>
+           <tr><th colspan=4>Sub Products</th></tr>
+           <tr><th>Token</th><th>Inv Qty</th><th>Price</th><th>Sub Qty</th></tr>
+            <tr>
+               <td><?= $pInfo->products_model ?></td>
+               <td><?= $pInfo->products_quantity + $pInfo->reserved_quantity ?></td>
+               <td><?= $pInfo->products_price ?></td>
+               <td>-</td>
+            </tr>
+           <?php $total_sub = 0; ?>
+           <?php foreach( $sub_products as $product ) : ?>
+            <?php $total_sub += ( $product['products_price'] * $product['sub_quantity'] ); ?>
+            <tr>
+               <td><a href="product.php?pID=<?= $product['products_id'] ?>&action=new_product"><?= $product['products_model'] ?></a></td>
+               <td><?= $product['products_quantity'] ?></td>
+               <td><?= $product['products_price'] ?></td>
+               <td><?= $product['sub_quantity'] ?></td>
+            </tr>
+            <?php endforeach ?>
+            <tr><td colspan=4>Component Sales Cost: <?= $total_sub ?></td></tr>
+          </table>
+        </td>
+        <?php endif ?>
       </tr>
       <tr>
         <td><table border="0" cellspacing="0" cellpadding="2">
@@ -409,8 +560,97 @@ updateGross();
             <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
           </tr>
           <tr>
+            <td class="main">Virtual?</td>
+            <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_radio_field('is_virtual', '1', ($in_is_virtual==1)) . '&nbsp;' . TEXT_YES . '&nbsp;&nbsp;' . zen_draw_radio_field('is_virtual', '0', ($in_is_virtual==0)) . '&nbsp;' . TEXT_NO . ' ' . ($pInfo->is_virtual == 1 ? '<span class="errorText"> (not included in inventory)</span>' : ''); ?></td>
+          </tr>
+          <tr>
             <td class="main"><?php echo TEXT_PRODUCTS_QUANTITY; ?></td>
-            <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('products_quantity', $pInfo->products_quantity); ?></td>
+            <td class="main">
+               <?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('products_quantity', $pInfo->products_quantity); ?>
+               +&nbsp;<input name="extra_quantity"/>
+           </td>
+          </tr>
+          <tr>
+            <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+          </tr>
+          <tr>
+            <script>
+                function moveup()
+                {
+                    var up = document.getElementsByName("products_quantity")[0];
+                    var down = document.getElementsByName("reserved_quantity")[0];
+
+                    var upv = parseInt(up.value, 10);
+                        upv = isNaN(upv) ? 0 : upv;
+
+                    var downv = parseInt(down.value, 10);
+                        downv = isNaN(downv) ? 0 : downv;
+
+                    if( downv > 0 )
+                    {
+                        up.value = upv + 1;
+                        down.value = downv - 1;
+                    }
+
+                    return false;
+                }
+                function movedown()
+                {
+                    var up = document.getElementsByName("products_quantity")[0];
+                    var down = document.getElementsByName("reserved_quantity")[0];
+
+                    var upv = parseInt(up.value, 10);
+                        upv = isNaN(upv) ? 0 : upv;
+
+                    var downv = parseInt(down.value, 10);
+                        downv = isNaN(downv) ? 0 : downv;
+
+                    if( upv > 0 )
+                    {
+                        down.value = downv + 1;
+                        up.value = upv - 1;
+                    }
+
+                    return false;
+                }
+            </script>
+            <td></td>
+            <td>
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                <button onClick="return moveup()">^</button>
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                <button onClick="return movedown()">v</button>
+            </td>
+          </tr>
+          <tr>
+            <td class="main">Reserved Quantity:</td>
+            <td class="main">
+               <?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('reserved_quantity', htmlspecialchars(stripslashes($pInfo->reserved_quantity), ENT_COMPAT, CHARSET, TRUE), zen_set_field_length(TABLE_PRODUCTS, 'reserved_quantity')); ?>
+               +&nbsp;<input name="extra_reserved"/>
+            </td>
+          </tr>
+          <tr>
+             <td></td>
+             <td>
+                (NOTE: Large Tackle Box = 90, Small = 32)
+             </td>
+          </tr>
+          <tr>
+            <td class="main">Primary Equipped Quantity:</td>
+            <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('equipped_quantity', htmlspecialchars(stripslashes($pInfo->equipped_quantity), ENT_COMPAT, CHARSET, TRUE), zen_set_field_length(TABLE_PRODUCTS, 'equipped_quantity')); ?></td>
+          </tr>
+          <tr>
+            <td class="main">Secondary Equipped Quantity:</td>
+            <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('equipped_secondary', htmlspecialchars(stripslashes($pInfo->equipped_secondary), ENT_COMPAT, CHARSET, TRUE), zen_set_field_length(TABLE_PRODUCTS, 'equipped_secondary')); ?></td>
+          </tr>
+          <tr>
+            <td class="main">Backup Equipped Quantity:</td>
+            <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('equipped_backup', htmlspecialchars(stripslashes($pInfo->equipped_backup), ENT_COMPAT, CHARSET, TRUE), zen_set_field_length(TABLE_PRODUCTS, 'equipped_backup')); ?></td>
           </tr>
           <tr>
             <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
@@ -418,6 +658,47 @@ updateGross();
           <tr>
             <td class="main"><?php echo TEXT_PRODUCTS_MODEL; ?></td>
             <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('products_model', htmlspecialchars(stripslashes($pInfo->products_model), ENT_COMPAT, CHARSET, TRUE), zen_set_field_length(TABLE_PRODUCTS, 'products_model')); ?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+          </tr>
+          <tr>
+            <td class="main">Default Cost:</td>
+            <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('default_cost', htmlspecialchars(stripslashes($pInfo->default_cost), ENT_COMPAT, CHARSET, TRUE), zen_set_field_length(TABLE_PRODUCTS, 'default_cost')); ?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+          </tr>
+          <tr>
+            <td class="main">Total Purchased:</td>
+            <td class="main">
+               <?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('total_purchased', htmlspecialchars(stripslashes($pInfo->total_purchased), ENT_COMPAT, CHARSET, TRUE), zen_set_field_length(TABLE_PRODUCTS, 'total_purchased')); ?>
+               +&nbsp;<input name="extra_purchased"/>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+          </tr>
+          <tr>
+            <td class="main">Total Cost:</td>
+            <td class="main">
+               <?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;' . zen_draw_input_field('total_cost', htmlspecialchars(stripslashes($pInfo->total_cost), ENT_COMPAT, CHARSET, TRUE), zen_set_field_length(TABLE_PRODUCTS, 'total_cost')); ?>
+               +&nbsp;<input name="extra_cost"/>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+          </tr>
+          <tr>
+            <td class="main">Average Cost:</td>
+            <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;$' . ( $pInfo->total_cost / $pInfo->total_purchased); ?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
+          </tr>
+          <tr>
+            <td class="main">Profit:</td>
+            <td class="main"><?php echo zen_draw_separator('pixel_trans.gif', '24', '15') . '&nbsp;$' . ( ( $pInfo->products_price * 0.9 ) - ( $pInfo->total_cost / $pInfo->total_purchased ) ); ?></td>
           </tr>
           <tr>
             <td colspan="2"><?php echo zen_draw_separator('pixel_trans.gif', '1', '10'); ?></td>

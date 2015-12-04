@@ -13,7 +13,7 @@
 
   include(DIR_WS_MODULES . zen_get_module_directory(FILENAME_CATEGORIES_TABS));
 ?>
-<?php if (CATEGORIES_TABS_STATUS == '1' && sizeof($links_list) >= 1) { ?>
+<?php if (false && CATEGORIES_TABS_STATUS == '1' && sizeof($links_list) >= 1) { ?>
 <div id="navCatTabsWrapper">
 <div id="navCatTabs">
 <ul>

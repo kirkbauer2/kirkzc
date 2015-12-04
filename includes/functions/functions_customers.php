@@ -135,6 +135,7 @@
 ////
 // Return a customer greeting
   function zen_customer_greeting() {
+  return '';
 
     if (isset($_SESSION['customer_id']) && $_SESSION['customer_first_name']) {
       $greeting_string = sprintf(TEXT_GREETING_PERSONAL, zen_output_string_protected($_SESSION['customer_first_name']), zen_href_link(FILENAME_PRODUCTS_NEW));

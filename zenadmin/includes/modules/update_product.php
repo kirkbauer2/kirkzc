@@ -20,14 +20,49 @@
     // Data-cleaning to prevent MySQL5 data-type mismatch errors:
     $tmp_value = zen_db_prepare_input($_POST['products_quantity']);
     $products_quantity = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['extra_quantity']);
+    $extra_quantity = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['equipped_quantity']);
+    $equipped_quantity = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['equipped_secondary']);
+    $equipped_secondary = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['equipped_backup']);
+    $equipped_backup = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['reserved_quantity']);
+    $reserved_quantity = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['extra_reserved']);
+    $extra_reserved = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['total_purchased']);
+    $total_purchased = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['extra_purchased']);
+    $extra_purchased = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
     $tmp_value = zen_db_prepare_input($_POST['products_price']);
     $products_price = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['total_cost']);
+    $total_cost = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['extra_cost']);
+    $extra_cost = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
+    $tmp_value = zen_db_prepare_input($_POST['default_cost']);
+    $default_cost = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
     $tmp_value = zen_db_prepare_input($_POST['products_weight']);
     $products_weight = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
     $tmp_value = zen_db_prepare_input($_POST['manufacturers_id']);
     $manufacturers_id = (!zen_not_null($tmp_value) || $tmp_value=='' || $tmp_value == 0) ? 0 : $tmp_value;
 
-    $sql_data_array = array('products_quantity' => $products_quantity,
+    if( ( $products_quantity + $reserved_quantity ) < $total_purchased )
+    {
+      $average_cost = $total_cost / $total_purchased;
+      $total_purchased = $products_quantity + $reserved_quantity;
+      $total_cost = $total_purchased * $average_cost;
+    }
+    $sql_data_array = array('products_quantity' => $products_quantity + $extra_quantity,
+                            'total_purchased' => $total_purchased + $extra_purchased,
+                            'reserved_quantity' => $reserved_quantity + $extra_reserved,
+                            'equipped_backup' => $equipped_backup,
+                            'equipped_quantity' => $equipped_quantity,
+                            'equipped_secondary' => $equipped_secondary,
+                            'default_cost' => $default_cost,
+                            'total_cost' => $total_cost + $extra_cost,
                             'products_type' => zen_db_prepare_input($_GET['product_type']),
                             'products_model' => zen_db_prepare_input($_POST['products_model']),
                             'products_price' => $products_price,
@@ -41,6 +76,7 @@
                             'products_quantity_order_units' => zen_db_prepare_input($_POST['products_quantity_order_units']),
                             'products_priced_by_attribute' => zen_db_prepare_input((int)$_POST['products_priced_by_attribute']),
                             'product_is_free' => zen_db_prepare_input((int)$_POST['product_is_free']),
+                            'is_virtual' => zen_db_prepare_input((int)$_POST['is_virtual']),
                             'product_is_call' => zen_db_prepare_input((int)$_POST['product_is_call']),
                             'products_quantity_mixed' => zen_db_prepare_input($_POST['products_quantity_mixed']),
                             'product_is_always_free_shipping' => zen_db_prepare_input((int)$_POST['product_is_always_free_shipping']),
