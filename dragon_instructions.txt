@@ -1,0 +1,26 @@
+
+                               =============================
+               Dragon Template v1.0 - tested with Zen-Cart 1.3.9, 1.5.0, 1.5.1
+	       (and probably compatable with other 1.3x and 1.5x versions too)
+                               =============================
+
+                               =============================
+Upload the "includes" folder(and all subdirectories) to your zen cart root directory(top level of Zen Cart installation)
+
+Enable the template
+Immediately go to ( Tools > Layout Boxes Controller ) and reset your boxes.
+Enable CSS Buttons at ( Configuration > Layout Settings > CSS Buttons )
+
+
+Optionally:
+Set your sidebar width on same layout settings page. 
+Disable a sidebar if you like and change other settings to taste
+Create EZ-Pages and link them in the header (as this creates the signature red bar at top)
+
+                               =============================
+                                        Description:
+                               =============================
+Rich, striking colors, simple minimal code. Simple PSD is included with gold layer styling; use it to create gold name lettering or upload your own logo.
+
+See demo at:
+http://www.ocalaseniorcare.com/dragon/
