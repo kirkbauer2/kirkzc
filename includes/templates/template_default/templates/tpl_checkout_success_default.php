@@ -101,3 +101,22 @@ if (isset($_SESSION['payment_method_messages']) && $_SESSION['payment_method_mes
 
 <h3 id="checkoutSuccessThanks" class="centeredContent"><?php echo TEXT_THANKS_FOR_SHOPPING; ?></h3>
 </div>
+
+<!-- Google Code for Purchase Conversion Page -->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 1071741341;
+var google_conversion_language = "en";
+var google_conversion_format = "3";
+var google_conversion_color = "ffffff";
+var google_conversion_label = "Yc-lCImbqQUQnfOF_wM";
+var google_conversion_value = 0;
+/* ]]> */
+</script>
+<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/1071741341/?value=0&amp;label=Yc-lCImbqQUQnfOF_wM&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript>

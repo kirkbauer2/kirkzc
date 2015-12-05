@@ -1,0 +1,31 @@
+#footer {clear:both;margin:0 auto;width:980px;background: #1b0104;padding-top:10px;-moz-border-radius-topleft: 10px; -webkit-border-top-left-radius: 10px; border-top-left-radius: 10px; -moz-border-radius-topright: 10px; -webkit-border-top-right-radius: 10px;}
+#navSuppWrapper {padding: 0;background:transparent;margin:0 auto;width:980px;}	
+#navSuppWrapper a{color:#c3af7d;font-weight:normal;}
+#navSuppWrapper a:hover{color:#91936c;}
+dl {margin: 0 0 3px 0;padding:0;clear:both;height:130px;width:90%;margin:0 auto;}/*Adjust the height and width of the menu*/
+dt {margin-bottom:.3em;font-weight:bold;}
+dd {margin:0;padding:0;float:left;width:24.3%;}/*Column width of the menu - currently set for 4 columns*/
+dd ul {margin:0;padding:0;list-style: none;}
+dd li {margin:0;padding:0;}
+dd li a {margin:0;padding-left:2em;display:block;}
+dd li a:hover {color:#ccc;text-decoration:underline;}
+.menuTitle {margin:0;padding-bottom:.8em;text-align:left;color:#c3af7d;margin-left:15px;font-size:14px;font-weight: normal;margin-bottom:20px;margin-top:15px;}
+.first, .second, .third {border-right:0px dashed #fff;}
+#siteinfoLegal {padding: .5em 0 0;font-size: 0.9em;text-align:right;margin-top:10px;margin-right:30px;width:980px;line-height:normal;color:#c3af7d;background:transparent;}
+#siteinfoLegal a {padding: 0 0.5em 0 0.5em;font-weight:bold;white-space: nowrap;color: #c3af7d;}
+.twitter-image {margin-right:10px;}
+#bannerSix {margin-top:0px;margin-bottom:30px;}
+#siteinfoIP{background:transparent;padding-top:20px;}
+.footer-icon{margin-top:0px;margin-right:10px;vertical-align:-50%;}
+.email-icon{margin-top:20px;}
+#footer-bottom {border-top:1px solid #1b0104;padding-top:20px;width:95%;margin-left:25px;width:980px;margin:0 auto;margin-top:20px;}
+.payments-image{width:200px;vertical-align:middle;margin-top:0px;}
+#social-media{width:425px;border:0px solid #000;float:left;}
+#social-media a{color:#fffffc;}
+.smi{vertical-align:middle;margin-right:5px;height:20px;width:20px;margin-top:0px;}
+.facebook{margin-left:0px;}
+.blog{margin-right:50px;}
+
+.footer-phone{background: url(../images/phone.png) no-repeat left center;line-height:25px;padding-left:15px;}
+.footer-email{background: url(../images/email.png) no-repeat left center;line-height:25px;padding-left:15px;margin-top:10px;}
+#top-footer{width:980px;margin:0 auto;}

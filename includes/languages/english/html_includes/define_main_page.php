@@ -1,4 +1,3 @@
-<a href="http://www.zen-cart.com/book"><img src="images/large/e-start-book.gif" alt="get your manual today" title="Have you got yours yet? Join the 1000's of Zen Cart users that have bought the only comprehensive owners manual !" /></a>
-<p>This content is located in the file at: <code> /languages/english/html_includes/YOUR_TEMPLATE/define_main_page.php</code></p>
-<p>You can quickly edit this content via Admin->Tools->Define Pages Editor, and select define_main_page from the pulldown.</p>
-<p><strong>NOTE: Always backup the files in<code> /languages/english/html_includes/your_template</code></strong></p>
+<p>Welcome to boardgamestorage.com, your source for colored zip-lock baggies and (in the future) other board game storage accessories.</p>
+<p>Do you love board games? Do you love organizing them for quick setup, quick clean-up, and to avoid losing pieces? Do you love using zip-lock baggies? Do you ever wonder which pieces go into which baggie at the end of the game? Do you like having each players' pieces in their own bag so you can leave the player pieces you don't need in the box? We provide coloried baggies for board games... by gamers, for gamers.</p>
+<p>For inspiration, please see our <a href="http://boardgamegeek.com/geeklist/151858/colored-baggies">Geeklist on BoardGameGeek</a>.
