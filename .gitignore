@@ -1,3 +1,4 @@
 includes/configure.php
 zenadmin/includes/configure.php
 logs/*.log
+cache/*
