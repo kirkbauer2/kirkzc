@@ -19,7 +19,7 @@ if (!defined('IS_ADMIN_FLAG')) {
 }
 class order extends base {
   var $info, $totals, $products, $customer, $delivery, $content_type, $email_low_stock, $products_ordered_attributes,
-  $products_ordered, $products_ordered_email, $attachArray;
+  $products_ordered, $products_ordered_email, $attachArray, $coupon_discount;
 
   function __construct($order_id = '') {
     $this->info = array();
@@ -27,6 +27,7 @@ class order extends base {
     $this->products = array();
     $this->customer = array();
     $this->delivery = array();
+    $this->coupon_discount = 1;
 
     $this->notify('NOTIFY_ORDER_INSTANTIATE', array(), $order_id);
     if (zen_not_null($order_id)) {
@@ -72,10 +73,16 @@ class order extends base {
 
 
       if ($totals->fields['class'] == 'ot_coupon') {
-        $coupon_link_query = "SELECT coupon_id
+        $coupon_link_query = "SELECT coupon_id,coupon_type,coupon_amount
                 from " . TABLE_COUPONS . "
                 where coupon_code ='" . $order->fields['coupon_code'] . "'";
         $coupon_link = $db->Execute($coupon_link_query);
+
+        if( ( $coupon_link->fields['coupon_type'] == 'P' ) or ( $coupon_link->fields['coupon_type'] == 'E' ) ) {
+            if( $coupon_link->fields['coupon_amount'] < 100 ) {
+                $this->coupon_discount = 1 - ( $coupon_link->fields['coupon_amount'] / 100 );
+            }
+        }
         $zc_coupon_link = '<a href="javascript:couponpopupWindow(\'' . zen_href_link(FILENAME_POPUP_COUPON_HELP, 'cID=' . $coupon_link->fields['coupon_id']) . '\')">';
       }
       $this->totals[] = array('title' => ($totals->fields['class'] == 'ot_coupon' ? $zc_coupon_link . $totals->fields['title'] . '</a>' : $totals->fields['title']),
@@ -335,11 +342,17 @@ class order extends base {
     $class =& $_SESSION['payment'];
 
     if (isset($_SESSION['cc_id'])) {
-      $coupon_code_query = "select coupon_code
+      $coupon_code_query = "select coupon_code,coupon_type,coupon_amount
                               from " . TABLE_COUPONS . "
                               where coupon_id = '" . (int)$_SESSION['cc_id'] . "'";
 
       $coupon_code = $db->Execute($coupon_code_query);
+
+        if( ( $coupon_code->fields['coupon_type'] == 'P' ) or ( $coupon_code->fields['coupon_type'] == 'E' ) ) {
+            if( $coupon_code->fields['coupon_amount'] < 100 ) {
+                $this->coupon_discount = 1 - ( $coupon_code->fields['coupon_amount'] / 100 );
+            }
+        }
 
 
     }
@@ -449,7 +462,7 @@ class order extends base {
                                       'tax_groups'=>$taxRates,
                                       'tax_description' => zen_get_tax_description($products[$i]['tax_class_id'], $taxCountryId, $taxZoneId),
                                       'price' => $products[$i]['price'],
-                                      'final_price' => $products[$i]['price'] + $_SESSION['cart']->attributes_price($products[$i]['id']),
+                                      'final_price' => $products[$i]['price'] * $this->coupon_discount,
                                       'products_cost' => $products[$i]['products_cost'],
                                       'onetime_charges' => $_SESSION['cart']->attributes_price_onetime_charges($products[$i]['id'], $products[$i]['quantity']),
                                       'weight' => $products[$i]['weight'],
